@@ -1,0 +1,319 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PowerPoint MCP Server API",
+    "description": "API complète pour créer et manipuler des présentations PowerPoint avec 32 outils spécialisés. Permet de créer des présentations, ajouter des slides, gérer du contenu, appliquer des templates, ajouter des graphiques et bien plus.",
+    "version": "2.2.0"
+  },
+  "servers": [
+    {
+      "url": "https://powerpoint-mcp-server.onrender.com",
+      "description": "Production server on Render"
+    }
+  ],
+  "paths": {
+    "/mcp/tools": {
+      "get": {
+        "operationId": "listTools",
+        "summary": "Lister tous les outils PowerPoint disponibles",
+        "description": "Retourne la liste complète des 32 outils disponibles avec leurs descriptions et paramètres",
+        "responses": {
+          "200": {
+            "description": "Liste des outils disponibles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "total_tools": {
+                      "type": "integer"
+                    },
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp/call": {
+      "post": {
+        "operationId": "callTool",
+        "summary": "Appeler un outil PowerPoint spécifique",
+        "description": "Exécute un outil PowerPoint avec les arguments fournis. Utilisez listTools d'abord pour voir tous les outils disponibles.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["tool_name"],
+                "properties": {
+                  "tool_name": {
+                    "type": "string",
+                    "description": "Nom de l'outil à appeler (ex: create_presentation, add_slide, etc.)",
+                    "enum": [
+                      "create_presentation",
+                      "create_presentation_from_template",
+                      "open_presentation",
+                      "save_presentation",
+                      "get_presentation_info",
+                      "set_core_properties",
+                      "add_slide",
+                      "get_slide_info",
+                      "extract_slide_text",
+                      "extract_presentation_text",
+                      "populate_placeholder",
+                      "add_bullet_points",
+                      "manage_text",
+                      "manage_image",
+                      "list_slide_templates",
+                      "apply_slide_template",
+                      "create_slide_from_template",
+                      "create_presentation_from_templates",
+                      "get_template_info",
+                      "auto_generate_presentation",
+                      "optimize_slide_text",
+                      "add_table",
+                      "add_shape",
+                      "add_line",
+                      "add_textbox",
+                      "apply_professional_design",
+                      "add_chart",
+                      "format_text_advanced",
+                      "update_chart_data",
+                      "manage_hyperlinks",
+                      "add_connector",
+                      "manage_slide_masters",
+                      "manage_slide_transitions"
+                    ]
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "description": "Arguments de l'outil (varie selon l'outil)",
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "examples": {
+                "create_presentation": {
+                  "summary": "Créer une nouvelle présentation",
+                  "value": {
+                    "tool_name": "create_presentation",
+                    "arguments": {}
+                  }
+                },
+                "add_slide": {
+                  "summary": "Ajouter un slide",
+                  "value": {
+                    "tool_name": "add_slide",
+                    "arguments": {
+                      "presentation_id": "pres_1",
+                      "layout_index": 0,
+                      "title": "Mon Titre"
+                    }
+                  }
+                },
+                "save_presentation": {
+                  "summary": "Sauvegarder la présentation",
+                  "value": {
+                    "tool_name": "save_presentation",
+                    "arguments": {
+                      "presentation_id": "pres_1",
+                      "filename": "ma_presentation.pptx"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Résultat de l'exécution de l'outil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["success", "error"]
+                    },
+                    "result": {
+                      "description": "Résultat de l'outil"
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Message d'erreur si status = error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp/presentations": {
+      "get": {
+        "operationId": "listPresentations",
+        "summary": "Lister toutes les présentations ouvertes",
+        "description": "Retourne la liste des IDs de toutes les présentations actuellement en mémoire",
+        "responses": {
+          "200": {
+            "description": "Liste des présentations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "total_presentations": {
+                      "type": "integer"
+                    },
+                    "presentation_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "current_presentation_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp/presentations/select/{presentation_id}": {
+      "post": {
+        "operationId": "selectPresentation",
+        "summary": "Sélectionner une présentation active",
+        "description": "Change la présentation active courante",
+        "parameters": [
+          {
+            "name": "presentation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID de la présentation à sélectionner"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Présentation sélectionnée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "current_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mcp/presentations/{presentation_id}/info": {
+      "get": {
+        "operationId": "getPresentationInfo",
+        "summary": "Obtenir les informations d'une présentation",
+        "description": "Retourne les détails d'une présentation spécifique (nombre de slides, etc.)",
+        "parameters": [
+          {
+            "name": "presentation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID de la présentation"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Informations de la présentation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "presentation_id": {
+                      "type": "string"
+                    },
+                    "slides_count": {
+                      "type": "integer"
+                    },
+                    "is_current": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Vérifier l'état du serveur",
+        "description": "Endpoint de santé pour monitoring",
+        "responses": {
+          "200": {
+            "description": "Serveur en bonne santé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -260,7 +260,7 @@ async def get_server_info() -> Dict[str, Any]:
         "current_presentation": get_current_presentation_id(),
         "features": [
             "Presentation Management (7 tools)",
-            "Content Management (6 tools)", 
+            "Content Management (6 tools)",
             "Template Operations (7 tools)",
             "Structural Elements (4 tools)",
             "Professional Design (3 tools)",
@@ -274,9 +274,22 @@ async def get_server_info() -> Dict[str, Any]:
             "presentations": "/mcp/presentations - List presentations",
             "select": "/mcp/presentations/select/{id} - Select presentation",
             "presentation_info": "/mcp/presentations/{id}/info - Get presentation info",
-            "server_info": "/mcp/server-info - Full server info"
+            "server_info": "/mcp/server-info - Full server info",
+            "openapi": "/openapi.json - OpenAPI spec for OpenAI"
         }
     }
+
+@http_app.get("/openapi.json")
+async def get_openapi_spec() -> Dict[str, Any]:
+    """Get OpenAPI specification for OpenAI Agent Builder"""
+    openapi_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi.json")
+    try:
+        with open(openapi_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="OpenAPI spec not found")
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=500, detail="Invalid OpenAPI spec")
 
 def main():
     """Start the HTTP server"""
