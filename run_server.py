@@ -28,10 +28,14 @@ logger = logging.getLogger(__name__)
 from server import app as mcp_app, presentations, get_current_presentation_id, set_current_presentation_id
 
 # Create FastAPI app for HTTP wrapper
+# Disable automatic OpenAPI generation to use our custom optimized spec
 http_app = FastAPI(
     title="PowerPoint MCP Server",
     description="HTTP API for PowerPoint manipulation using MCP protocol",
-    version="2.2.0"
+    version="2.2.0",
+    docs_url=None,  # Disable /docs
+    redoc_url=None,  # Disable /redoc
+    openapi_url=None  # Disable automatic /openapi.json
 )
 
 # Pydantic models
