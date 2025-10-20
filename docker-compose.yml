@@ -1,0 +1,11 @@
+services:
+  powerpoint-mcp-server:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PPT_TEMPLATE_PATH=/app/templates
+    volumes:
+      - ./presentations:/app/presentations
+      - ./templates:/app/templates
+    restart: unless-stopped
