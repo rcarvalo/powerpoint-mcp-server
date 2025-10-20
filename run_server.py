@@ -299,26 +299,17 @@ async def get_server_info() -> Dict[str, Any]:
         }
     }
 
-@http_app.get("/openapi.json")
-async def get_openapi_spec() -> Dict[str, Any]:
-    """Get OpenAPI specification for OpenAI Agent Builder"""
-    # Try optimized version first, fallback to basic version
-    optimized_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi_optimized.json")
-    basic_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi.json")
-
-    try:
-        with open(optimized_path, 'r', encoding='utf-8') as f:
-            logger.info("Serving optimized OpenAPI spec for OpenAI Agent Builder")
-            return json.load(f)
-    except FileNotFoundError:
-        try:
-            with open(basic_path, 'r', encoding='utf-8') as f:
-                logger.info("Serving basic OpenAPI spec")
-                return json.load(f)
-        except FileNotFoundError:
-            raise HTTPException(status_code=404, detail="OpenAPI spec not found")
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Invalid OpenAPI spec")
+@http_app.get("/debug/openapi-files")
+async def debug_openapi_files() -> Dict[str, Any]:
+    """Debug endpoint to check if OpenAPI files exist"""
+    import glob
+    workdir = os.path.dirname(os.path.abspath(__file__))
+    return {
+        "workdir": workdir,
+        "files_in_dir": sorted(glob.glob(os.path.join(workdir, "*"))),
+        "openapi_files": sorted(glob.glob(os.path.join(workdir, "openapi*.json"))),
+        "custom_openapi_function": "custom_openapi" in dir(http_app)
+    }
 
 def main():
     """Start the HTTP server"""
