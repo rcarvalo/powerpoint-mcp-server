@@ -282,12 +282,21 @@ async def get_server_info() -> Dict[str, Any]:
 @http_app.get("/openapi.json")
 async def get_openapi_spec() -> Dict[str, Any]:
     """Get OpenAPI specification for OpenAI Agent Builder"""
-    openapi_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi.json")
+    # Try optimized version first, fallback to basic version
+    optimized_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi_optimized.json")
+    basic_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi.json")
+
     try:
-        with open(openapi_path, 'r', encoding='utf-8') as f:
+        with open(optimized_path, 'r', encoding='utf-8') as f:
+            logger.info("Serving optimized OpenAPI spec for OpenAI Agent Builder")
             return json.load(f)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="OpenAPI spec not found")
+        try:
+            with open(basic_path, 'r', encoding='utf-8') as f:
+                logger.info("Serving basic OpenAPI spec")
+                return json.load(f)
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="OpenAPI spec not found")
     except json.JSONDecodeError:
         raise HTTPException(status_code=500, detail="Invalid OpenAPI spec")
 

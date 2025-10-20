@@ -1,0 +1,429 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PowerPoint MCP Server API",
+    "description": "API complète pour créer et manipuler des présentations PowerPoint avec 37 outils spécialisés. Permet de créer des présentations, ajouter des slides, gérer du contenu, appliquer des templates, ajouter des graphiques, tableaux, formes et bien plus.",
+    "version": "2.2.0",
+    "contact": {
+      "name": "PowerPoint MCP Server",
+      "url": "https://powerpoint-mcp-server.onrender.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://powerpoint-mcp-server.onrender.com",
+      "description": "Production server on Render"
+    }
+  ],
+  "paths": {
+    "/mcp/call": {
+      "post": {
+        "operationId": "callPowerPointTool",
+        "summary": "Appeler un outil PowerPoint",
+        "description": "Exécute un des 37 outils PowerPoint disponibles. Utilisez l'enum tool_name pour voir tous les outils. Commencez toujours par create_presentation, puis utilisez le presentation_id retourné pour les autres opérations.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["tool_name"],
+                "properties": {
+                  "tool_name": {
+                    "type": "string",
+                    "description": "Nom de l'outil à exécuter",
+                    "enum": [
+                      "create_presentation",
+                      "create_presentation_from_template",
+                      "open_presentation",
+                      "save_presentation",
+                      "get_presentation_info",
+                      "get_template_file_info",
+                      "set_core_properties",
+                      "add_slide",
+                      "get_slide_info",
+                      "extract_slide_text",
+                      "extract_presentation_text",
+                      "populate_placeholder",
+                      "add_bullet_points",
+                      "manage_text",
+                      "manage_image",
+                      "add_table",
+                      "format_table_cell",
+                      "add_shape",
+                      "add_chart",
+                      "apply_professional_design",
+                      "apply_picture_effects",
+                      "manage_fonts",
+                      "list_slide_templates",
+                      "apply_slide_template",
+                      "create_slide_from_template",
+                      "create_presentation_from_templates",
+                      "get_template_info",
+                      "auto_generate_presentation",
+                      "optimize_slide_text",
+                      "manage_hyperlinks",
+                      "update_chart_data",
+                      "add_connector",
+                      "manage_slide_masters",
+                      "manage_slide_transitions",
+                      "list_presentations",
+                      "switch_presentation",
+                      "get_server_info"
+                    ]
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "description": "Arguments spécifiques à l'outil. Varie selon le tool_name. Voir les exemples ci-dessous.",
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "examples": {
+                "create_presentation": {
+                  "summary": "Créer une nouvelle présentation",
+                  "description": "Première étape : créer une présentation vide. Retourne un presentation_id à utiliser pour toutes les autres opérations.",
+                  "value": {
+                    "tool_name": "create_presentation",
+                    "arguments": {}
+                  }
+                },
+                "add_slide": {
+                  "summary": "Ajouter un slide avec titre",
+                  "description": "Ajoute un slide à la présentation. layout_index: 0=Title, 1=Title+Content, 5=Blank",
+                  "value": {
+                    "tool_name": "add_slide",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "layout_index": 0,
+                      "title": "Mon Titre de Slide"
+                    }
+                  }
+                },
+                "manage_text": {
+                  "summary": "Ajouter du texte sur un slide",
+                  "description": "Ajoute ou modifie du texte sur un slide spécifique",
+                  "value": {
+                    "tool_name": "manage_text",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "slide_index": 0,
+                      "text": "Contenu de mon slide",
+                      "placeholder_index": 1
+                    }
+                  }
+                },
+                "add_bullet_points": {
+                  "summary": "Ajouter des puces",
+                  "description": "Ajoute une liste de bullet points au slide",
+                  "value": {
+                    "tool_name": "add_bullet_points",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "slide_index": 0,
+                      "placeholder_index": 1,
+                      "bullets": [
+                        "Premier point important",
+                        "Deuxième point clé",
+                        "Troisième élément"
+                      ]
+                    }
+                  }
+                },
+                "add_chart": {
+                  "summary": "Ajouter un graphique",
+                  "description": "Ajoute un graphique (bar, column, line, pie)",
+                  "value": {
+                    "tool_name": "add_chart",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "slide_index": 1,
+                      "chart_type": "column",
+                      "categories": ["Q1", "Q2", "Q3", "Q4"],
+                      "series_data": {
+                        "Ventes": [100, 150, 200, 180]
+                      }
+                    }
+                  }
+                },
+                "add_table": {
+                  "summary": "Ajouter un tableau",
+                  "description": "Ajoute un tableau avec données",
+                  "value": {
+                    "tool_name": "add_table",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "slide_index": 2,
+                      "rows": 3,
+                      "cols": 3,
+                      "data": [
+                        ["Nom", "Prénom", "Age"],
+                        ["Dupont", "Jean", "35"],
+                        ["Martin", "Marie", "28"]
+                      ]
+                    }
+                  }
+                },
+                "apply_slide_template": {
+                  "summary": "Appliquer un template",
+                  "description": "Applique un template prédéfini au slide",
+                  "value": {
+                    "tool_name": "apply_slide_template",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "slide_index": 0,
+                      "template_name": "title_slide",
+                      "color_scheme": "modern_blue"
+                    }
+                  }
+                },
+                "list_slide_templates": {
+                  "summary": "Lister les templates disponibles",
+                  "description": "Retourne la liste de tous les templates de slides disponibles",
+                  "value": {
+                    "tool_name": "list_slide_templates",
+                    "arguments": {}
+                  }
+                },
+                "save_presentation": {
+                  "summary": "Sauvegarder la présentation",
+                  "description": "Sauvegarde finale. Retourne le fichier .pptx",
+                  "value": {
+                    "tool_name": "save_presentation",
+                    "arguments": {
+                      "presentation_id": "presentation_1",
+                      "filename": "ma_presentation.pptx"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Résultat de l'exécution de l'outil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["success", "error"],
+                      "description": "Statut de l'exécution"
+                    },
+                    "result": {
+                      "description": "Résultat de l'outil. Contient généralement un presentation_id, message, et autres données spécifiques."
+                    },
+                    "error": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Message d'erreur si status = error"
+                    }
+                  }
+                },
+                "examples": {
+                  "create_presentation_success": {
+                    "summary": "Présentation créée avec succès",
+                    "value": {
+                      "status": "success",
+                      "result": [
+                        [
+                          {
+                            "type": "text",
+                            "text": "{\"presentation_id\": \"presentation_1\", \"message\": \"Created new presentation\", \"slide_count\": 0}"
+                          }
+                        ],
+                        {
+                          "result": {
+                            "presentation_id": "presentation_1",
+                            "message": "Created new presentation with ID: presentation_1",
+                            "slide_count": 0
+                          }
+                        }
+                      ],
+                      "error": null
+                    }
+                  },
+                  "add_slide_success": {
+                    "summary": "Slide ajouté avec succès",
+                    "value": {
+                      "status": "success",
+                      "result": [
+                        [
+                          {
+                            "type": "text",
+                            "text": "{\"message\": \"Added slide 0\", \"slide_index\": 0, \"layout_name\": \"Title Slide\"}"
+                          }
+                        ],
+                        {
+                          "result": {
+                            "message": "Added slide 0 with layout 0",
+                            "slide_index": 0,
+                            "layout_name": "Title Slide"
+                          }
+                        }
+                      ],
+                      "error": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Outil non trouvé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erreur serveur",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["error"]
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Vérifier l'état du serveur",
+        "description": "Endpoint de santé pour vérifier que le serveur fonctionne",
+        "responses": {
+          "200": {
+            "description": "Serveur en bonne santé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "ppt-mcp-server"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "2.2.0"
+                    },
+                    "total_presentations": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "current_presentation": {
+                      "type": "string",
+                      "nullable": true,
+                      "example": null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ToolCall": {
+        "type": "object",
+        "required": ["tool_name"],
+        "properties": {
+          "tool_name": {
+            "type": "string",
+            "description": "Nom de l'outil PowerPoint à exécuter",
+            "enum": [
+              "create_presentation",
+              "create_presentation_from_template",
+              "open_presentation",
+              "save_presentation",
+              "get_presentation_info",
+              "get_template_file_info",
+              "set_core_properties",
+              "add_slide",
+              "get_slide_info",
+              "extract_slide_text",
+              "extract_presentation_text",
+              "populate_placeholder",
+              "add_bullet_points",
+              "manage_text",
+              "manage_image",
+              "add_table",
+              "format_table_cell",
+              "add_shape",
+              "add_chart",
+              "apply_professional_design",
+              "apply_picture_effects",
+              "manage_fonts",
+              "list_slide_templates",
+              "apply_slide_template",
+              "create_slide_from_template",
+              "create_presentation_from_templates",
+              "get_template_info",
+              "auto_generate_presentation",
+              "optimize_slide_text",
+              "manage_hyperlinks",
+              "update_chart_data",
+              "add_connector",
+              "manage_slide_masters",
+              "manage_slide_transitions",
+              "list_presentations",
+              "switch_presentation",
+              "get_server_info"
+            ]
+          },
+          "arguments": {
+            "type": "object",
+            "description": "Arguments de l'outil (varie selon tool_name)",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ToolResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error"]
+          },
+          "result": {
+            "description": "Résultat de l'outil"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
