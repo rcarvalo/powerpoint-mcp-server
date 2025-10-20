@@ -28,15 +28,31 @@ logger = logging.getLogger(__name__)
 from server import app as mcp_app, presentations, get_current_presentation_id, set_current_presentation_id
 
 # Create FastAPI app for HTTP wrapper
-# Disable automatic OpenAPI generation to use our custom optimized spec
 http_app = FastAPI(
     title="PowerPoint MCP Server",
     description="HTTP API for PowerPoint manipulation using MCP protocol",
-    version="2.2.0",
-    docs_url=None,  # Disable /docs
-    redoc_url=None,  # Disable /redoc
-    openapi_url=None  # Disable automatic /openapi.json
+    version="2.2.0"
 )
+
+# Override FastAPI's openapi() method to serve our custom spec
+def custom_openapi():
+    optimized_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openapi_optimized.json")
+    try:
+        with open(optimized_path, 'r', encoding='utf-8') as f:
+            logger.info("Loading custom optimized OpenAPI spec for OpenAI Agent Builder")
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading custom OpenAPI: {e}")
+        # Fallback to FastAPI's default
+        from fastapi.openapi.utils import get_openapi
+        return get_openapi(
+            title=http_app.title,
+            version=http_app.version,
+            description=http_app.description,
+            routes=http_app.routes,
+        )
+
+http_app.openapi = custom_openapi
 
 # Pydantic models
 class ToolCall(BaseModel):
